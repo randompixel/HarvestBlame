@@ -95,6 +95,18 @@
     protected $_headers;
     
     /**
+     * @var string HTTP Proxy URL for use with cURL request
+     */
+    protected $http_proxy_url;
+    
+    /**
+     * @var string HTTP Proxy Port for use with cURL request
+     */
+    protected $http_proxy_port;
+    
+    
+    
+    /**
      * set Harvest User Name
      *
      * <code>
@@ -191,6 +203,20 @@
         $url = "account/rate_limit_status";
         return $this->performGET( $url, false );
     }
+    
+    /**
+     * For users behind a proxy, add in the configuration settings
+     * to make the cURL request.
+     * 
+     * @param type $url cURL proxy url as per CURLOPT_PROXY
+     * @param type $port cURL proxy port as per CURLOPT_PROXYPORT
+     */
+    public function setProxy($url, $port)
+    {
+        $this->http_proxy_url = $url;
+        $this->http_proxy_port = $port;
+    }
+    
 
     /*--------------------------------------------------------------*/
     /*--------------------- Time Tracking API ----------------------*/
@@ -2431,10 +2457,14 @@
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $http . $this->_account . ".harvestapp.com/" . $url );
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-	curl_setopt($ch, CURLOPT_PROXY, 'http://proxy.city-link.com:3128');
-	curl_setopt($ch, CURLOPT_PROXYPORT, '3128');
+	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        if (!empty($this->http_proxy_url)) {
+            curl_setopt($ch, CURLOPT_PROXY, $this->http_proxy_url);
+        }
+	if (!empty($this->http_proxy_port)) {
+            curl_setopt($ch, CURLOPT_PROXYPORT, $this->http_proxy_port);
+        }
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('User-Agent: PHP Wrapper Library for Harvest API', 'Accept: application/xml', 'Content-Type: application/xml', 'Authorization: Basic (' . base64_encode( $this->_user . ":" . $this->_password ). ')' ) );
         curl_setopt($ch, CURLOPT_HEADERFUNCTION, array(&$this,'parseHeader'));
         return $ch;
