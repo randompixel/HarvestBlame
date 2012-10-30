@@ -90,6 +90,9 @@ class HarvestBlame extends HarvestAPI
         $this->end_date = new DateTime(date('Y-m-d', strtotime($this->getConfig('Time/end'))));
     }
 
+    /**
+     * Core function to run
+     */
     public function blame()
     {
         $this->getUserDetails();
@@ -135,6 +138,12 @@ class HarvestBlame extends HarvestAPI
 
         $range = new Harvest_Range($this->start_date->format('Ymd'), $this->end_date->format('Ymd'));
 
+        if (empty($this->users))
+        {
+            echo 'Unable to fetch any user details, or no users are configured.';
+            exit();
+        }
+        
         foreach ($this->users as $user)
         {
             $id = $user->get('id');
@@ -215,6 +224,9 @@ class HarvestBlame extends HarvestAPI
                 case 'Email/email_to':
                     $message = "No address has been configured to send mail to.\n";
                     break;
+                case 'Email/cc_users':
+                    $message = "No configuration for whether to cc the users is set.\n";
+                    break;
                 default:
                     echo 'Configuration doesn\'t exist.';
             }
@@ -255,7 +267,6 @@ class HarvestBlame extends HarvestAPI
         }
         echo '</tr>';
 
-        $cc = ''; // Capture emails of users to CC later
         foreach ($this->users as $k => $v)
         {
             $name = $v->get('first-name') . ' ' . $v->get('last-name');
@@ -292,12 +303,25 @@ class HarvestBlame extends HarvestAPI
         $to = $this->getConfig('Email/email_to');
 
         // Handle CC's
+        $cc = array();
         
+        $manual_cc = $this->getConfig('Email/cc');
+        if (!empty($manual_cc)) {
+            $cc = array_merge($cc, $manual_cc);
+        }
+        
+        $cc_users = $this->getConfig('Email/cc_users');
+        if ($cc_users == true)
+        {
+            foreach($this->users as $user) {
+                array_push($cc, $user->get('email'));
+            }
+        }
         
         $headers = 
                 'From:' . $this->getConfig('Email/email_from') . "\r\n" .
                 'X-Mailer: PHP/' . phpversion() . "\r\n" .
-                //'CC:' . $cc . "\r\n" .
+                'CC:' . implode(',', $cc) . "\r\n" .
                 'Content-type: text/html' . "\r\n";
         
         $sent = mail($to, $subject, $message, $headers);
