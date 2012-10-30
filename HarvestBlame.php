@@ -186,8 +186,18 @@ class HarvestBlame extends HarvestAPI
      */
     private function getConfig($option)
     {
-
         $parts = explode('/', $option);
+        
+        if (empty($parts[0]) || empty($parts[1])) 
+        {
+            return null;
+        }
+        
+        if (!array_key_exists($parts[1], $this->config[$parts[0]]))
+        {
+            return null;
+        }
+        
         $config = $this->config[$parts[0]][$parts[1]];
         if (empty($config))
         {
