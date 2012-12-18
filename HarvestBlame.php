@@ -199,7 +199,7 @@ class HarvestBlame extends HarvestAPI
         }
         
         $config = $this->config[$parts[0]][$parts[1]];
-        if (empty($config))
+        if (!isset($config))
         {
             switch ($option)
             {
@@ -364,6 +364,10 @@ class HarvestBlame extends HarvestAPI
         }
     }
 
+    /**
+     * Write a log message to the screen
+     * @param String $message
+     */
     private function log($message)
     {
         echo sprintf('[' . date('Y-m-d H:i:s') . ']' . " %s\n", $message);
