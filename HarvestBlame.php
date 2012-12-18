@@ -281,7 +281,7 @@ class HarvestBlame extends HarvestAPI
         {
             $name = $v->get('first-name') . ' ' . $v->get('last-name');
             echo '<tr>';
-            echo '<td style="text-align:right">' . $name . '</td>';
+            echo '<td style="text-align:right">' . $name . "</td>\n";
             foreach ($this->timesheets[$k] as $date => $hours)
             {
                 switch (true)
@@ -296,7 +296,7 @@ class HarvestBlame extends HarvestAPI
                         $fg = '#000';
                 }
 
-                echo '<td style="text-align:center;background-color:' . $bg . ';color:' . $fg . ';">' . trim($hours) . '</td>';
+                echo '<td style="text-align:center;background-color:' . $bg . ';color:' . $fg . ';">' . trim($hours) . "</td>\n";
             }
             echo '</tr>';
         }
