@@ -167,7 +167,7 @@ class HarvestBlame extends HarvestAPI
                 foreach ($result->data as $v)
                 {
                     $spent_at = $v->get('spent-at');
-                    $timesheet[$spent_at] += (int) $v->get('hours');
+                    $timesheet[$spent_at] += (float) $v->get('hours');
                 }
 
                 $this->timesheets[$id] = $timesheet;
